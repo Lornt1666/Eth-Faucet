@@ -4,6 +4,12 @@ Continuous Base Sepolia ETH faucet claimer using Coinbase Developer Platform (CD
 
 Automatically claims Base Sepolia ETH from the [Coinbase CDP Faucet](https://portal.cdp.coinbase.com/products/faucet?projectId=c3060223-a072-4aa2-8dc3-e3879cebd293&token=ETH&network=base-sepolia&address=0xca1069955bD83ccD5371182d0276FeC855f7C97F) for address `0xca1069955bD83ccD5371182d0276FeC855f7C97F`.
 
+## 🚨 Getting "File Not Found" Errors?
+
+**See [QUICK_START.md](QUICK_START.md) for troubleshooting!**
+
+Common issue: You're already in the right directory but trying to navigate further. Check with `ls` - if you see `setup-ish.sh`, just run `sh setup-ish.sh` directly!
+
 ## Features
 
 - **24-hour rolling window**: Tracks claims within the last 24 hours (persisted to file)
@@ -29,12 +35,17 @@ Automatically claims Base Sepolia ETH from the [Coinbase CDP Faucet](https://por
 
 ### Installation
 
+**Important: Clone the correct branch!**
+
 ```bash
-# Clone the repository
-git clone https://github.com/Lornt1666/Eth-Faucet.git
+# Clone the faucet claimer branch (NOT the default branch)
+git clone -b copilot/implement-faucet-claims-script https://github.com/Lornt1666/Eth-Faucet.git
 cd Eth-Faucet
 
-# Install dependencies
+# Verify you're in the right place
+ls upgrade-alpine.sh setup-ish.sh claim.py 2>/dev/null && echo "✓ Ready to go!" || echo "✗ Wrong branch - see BRANCH_NAVIGATION_FIX.md"
+
+# Install dependencies (after Alpine upgrade if needed)
 pip install -r requirements.txt
 ```
 

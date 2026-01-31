@@ -93,18 +93,24 @@ fi
 echo ""
 echo "[2/5] Installing Python dependencies..."
 echo "Upgrading pip to latest version..."
-pip3 install --upgrade pip 2>&1 | grep -v "Requirement already satisfied" || true
+
+# Use --break-system-packages for Python 3.11+ (Alpine 3.19+)
+# This is safe in iSH as it's an isolated environment
+pip3 install --upgrade pip --break-system-packages 2>&1 | grep -v "Requirement already satisfied" || true
 
 echo "Installing cdp-sdk..."
-pip3 install -r requirements.txt || {
+pip3 install -r requirements.txt --break-system-packages || {
     echo ""
     echo "Error: Failed to install Python dependencies"
     echo ""
     echo "Troubleshooting steps:"
     echo "1. Check internet connection"
-    echo "2. Try manually: pip3 install --upgrade pip"
-    echo "3. Try manually: pip3 install cdp-sdk"
+    echo "2. Try manually: pip3 install --upgrade pip --break-system-packages"
+    echo "3. Try manually: pip3 install cdp-sdk --break-system-packages"
     echo "4. If still failing, check pip version: pip3 --version"
+    echo ""
+    echo "Note: --break-system-packages is required for Python 3.11+"
+    echo "This is safe in iSH as it's an isolated environment."
     echo ""
     exit 1
 }

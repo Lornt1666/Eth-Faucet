@@ -25,9 +25,20 @@ apk add --no-cache python3 py3-pip git procps || {
 # Step 2: Install Python dependencies
 echo ""
 echo "[2/5] Installing Python dependencies..."
+echo "Upgrading pip to latest version..."
+pip3 install --upgrade pip 2>&1 | grep -v "Requirement already satisfied" || true
+
+echo "Installing cdp-sdk..."
 pip3 install -r requirements.txt || {
+    echo ""
     echo "Error: Failed to install Python dependencies"
-    echo "Make sure you're in the Eth-Faucet directory"
+    echo ""
+    echo "Troubleshooting steps:"
+    echo "1. Check internet connection"
+    echo "2. Try manually: pip3 install --upgrade pip"
+    echo "3. Try manually: pip3 install cdp-sdk"
+    echo "4. If still failing, check pip version: pip3 --version"
+    echo ""
     exit 1
 }
 

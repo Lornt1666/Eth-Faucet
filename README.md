@@ -105,6 +105,9 @@ apk update
 # Install packages
 apk add python3 py3-pip git procps
 
+# Upgrade pip (important for older iSH versions)
+pip3 install --upgrade pip
+
 # Install dependencies
 pip3 install -r requirements.txt
 
@@ -122,6 +125,8 @@ tail -f nohup.out
 This runs the script in the background and keeps it running even after closing the terminal. The script will continuously attempt claims with smart retry logic.
 
 **Note:** iSH is compatible with all modern iOS versions (iOS 13+). The app works the same way across all iPhone and iPad models.
+
+**Troubleshooting:** If you encounter `ERROR: Could not find a version that satisfies the requirement cdp-sdk`, make sure pip is upgraded first with `pip3 install --upgrade pip`.
 
 ### Run single claim attempt
 

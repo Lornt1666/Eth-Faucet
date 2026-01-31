@@ -47,10 +47,13 @@ echo "- You may need to reinstall some software"
 echo ""
 
 # Ask for confirmation
-printf "Do you want to continue? (yes/no): "
+printf "Do you want to continue? (y/yes or n/no): "
 read -r CONFIRM
 
-if [ "$CONFIRM" != "yes" ]; then
+# Convert to lowercase for case-insensitive comparison
+CONFIRM_LOWER=$(echo "$CONFIRM" | tr '[:upper:]' '[:lower:]')
+
+if [ "$CONFIRM_LOWER" != "yes" ] && [ "$CONFIRM_LOWER" != "y" ]; then
     echo ""
     echo "Upgrade cancelled."
     echo ""

@@ -15,33 +15,39 @@ sh: can't open 'setup-ish.sh': No such file or directory
 
 ## Root Cause
 The repository has two branches:
-1. **RegenExcalibur-Webpage** (default branch) - Only contains a basic README
-2. **copilot/implement-faucet-claims-script** - Contains the full implementation including `setup-ish.sh`
+1. **RegenExcalibur-Webpage** (default branch) - Owner's website (kept separate)
+2. **copilot/implement-faucet-claims-script** - Faucet claimer implementation
 
-When users clone without specifying a branch, they get the default branch which doesn't have the setup script.
+When users clone without specifying a branch, they get the default branch which is the website, not the faucet claimer.
 
-## Solution Implemented
+## Solution: Clone the Faucet Branch Directly
 
-### 1. Updated Default Branch README
-The README on the `RegenExcalibur-Webpage` branch has been updated to clearly instruct users how to access the implementation branch.
+### For Users Who Want the Faucet Claimer
 
-### 2. Two Ways for Users to Fix This
-
-#### Option A: Clone the correct branch directly (Recommended)
+**Option A: Clone the faucet branch directly (Recommended)**
 ```bash
 git clone -b copilot/implement-faucet-claims-script https://github.com/Lornt1666/Eth-Faucet.git
 cd Eth-Faucet
 sh setup-ish.sh
 ```
 
-#### Option B: If already cloned, switch to the implementation branch
+**Option B: If already cloned, switch to the faucet branch**
 ```bash
 cd Eth-Faucet
 git checkout copilot/implement-faucet-claims-script
 sh setup-ish.sh
 ```
 
-## For the Specific User Who Reported the Issue
+## Repository Structure
+
+This repository contains two separate projects on different branches:
+
+- **RegenExcalibur-Webpage** branch: Owner's website (default)
+- **copilot/implement-faucet-claims-script** branch: Base Sepolia ETH faucet claimer
+
+**They are intentionally kept separate and should not be mixed.**
+
+## For the User Who Reported the Issue
 
 Since you've already cloned the repository, just run:
 ```bash
@@ -50,7 +56,4 @@ git checkout copilot/implement-faucet-claims-script
 sh setup-ish.sh
 ```
 
-This will switch you to the branch with all the implementation files and then you can run the setup script successfully!
-
-## Note
-The updated README has been committed to the default branch locally but requires push permissions to be deployed. Once pushed, all future users cloning the repository will see clear instructions on how to access the implementation.
+This will switch you to the faucet claimer branch and then you can run the setup script successfully!

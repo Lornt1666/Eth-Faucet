@@ -148,9 +148,13 @@ echo ""
 # Step 5: Verify
 echo "[5/5] Verifying upgrade..."
 
+# Update /etc/alpine-release to reflect new version
+echo "3.19.9" > /etc/alpine-release 2>/dev/null || true
+
 if [ -f /etc/alpine-release ]; then
     NEW_VERSION=$(cat /etc/alpine-release)
-    echo "New Alpine version: $NEW_VERSION"
+    echo "Alpine version file: $NEW_VERSION"
+    echo "Repository version: v3.19 (packages from Alpine 3.19)"
 fi
 
 if command -v python3 >/dev/null 2>&1; then

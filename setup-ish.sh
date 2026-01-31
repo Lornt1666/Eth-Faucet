@@ -1,5 +1,6 @@
 #!/bin/sh
 # iSH (Alpine iOS) Setup Script for Base Sepolia ETH Faucet Claimer
+# Compatible with iSH on iPhone/iPad (iOS 13+)
 # This script sets up and runs the faucet claimer on iSH
 
 set -e
@@ -17,7 +18,7 @@ fi
 
 # Step 1: Install required packages
 echo "[1/5] Installing required packages..."
-apk add --no-cache python3 py3-pip git || {
+apk add --no-cache python3 py3-pip git procps || {
     echo "Note: If package installation fails, try running: apk update first"
 }
 
@@ -76,11 +77,13 @@ echo ""
 . ./.env.sh
 
 # Check if already running
-if pgrep -f "python3.*claim.py" > /dev/null; then
+if ps aux | grep -v grep | grep "python3.*claim.py" > /dev/null 2>&1; then
     echo "⚠️  Faucet claimer is already running!"
     echo ""
-    echo "To stop it, run:"
-    echo "  pkill -f 'python3.*claim.py'"
+    echo "To stop it, find the PID with:"
+    echo "  ps aux | grep claim.py"
+    echo "Then kill it with:"
+    echo "  kill <PID>"
     echo ""
     echo "To view logs:"
     echo "  tail -f nohup.out"
@@ -103,9 +106,10 @@ echo "=================================="
 echo ""
 echo "Useful Commands:"
 echo "  View logs:        tail -f nohup.out"
-echo "  Stop claimer:     pkill -f 'python3.*claim.py'"
+echo "  Check status:     ps aux | grep claim.py"
+echo "  Stop claimer:     kill <PID>  (find PID with ps aux | grep claim.py)"
 echo "  Restart claimer:  source .env.sh && nohup python3 claim.py > nohup.out 2>&1 &"
-echo "  Check status:     pgrep -f 'python3.*claim.py' && echo 'Running' || echo 'Stopped'"
 echo ""
 echo "Target Address: 0xca1069955bD83ccD5371182d0276FeC855f7C97F"
+echo "Compatible with: iSH on iPhone/iPad (iOS 13+)"
 echo ""

@@ -49,6 +49,8 @@ export CDP_API_KEY_SECRET="your_api_key_secret"
 
 ### Quick Start for iSH (Alpine iOS)
 
+**Compatible with iSH on iPhone/iPad running iOS 13 and later (including iOS 16+)**
+
 The easiest way to set up and run on iSH:
 
 ```bash
@@ -61,7 +63,7 @@ sh setup-ish.sh
 ```
 
 The script will:
-- Install required packages (python3, py3-pip, git)
+- Install required packages (python3, py3-pip, git, procps)
 - Install Python dependencies
 - Prompt for your CDP API credentials
 - Save credentials to `.env.sh` for persistence
@@ -73,14 +75,17 @@ The script will:
 # View live logs
 tail -f nohup.out
 
-# Stop the claimer
-pkill -f 'python3.*claim.py'
+# Check if running
+ps aux | grep claim.py
+
+# Stop the claimer (replace <PID> with actual process ID)
+kill <PID>
+
+# Find the PID
+ps aux | grep claim.py
 
 # Restart the claimer
 source .env.sh && nohup python3 claim.py > nohup.out 2>&1 &
-
-# Check if running
-pgrep -f 'python3.*claim.py' && echo 'Running' || echo 'Stopped'
 ```
 
 ### Run locally (continuous mode)
@@ -91,11 +96,14 @@ python3 claim.py
 
 ### Manual iSH Setup (Alternative)
 
-If you prefer manual setup:
+If you prefer manual setup on iSH:
 
 ```bash
+# Update package index (recommended on first run)
+apk update
+
 # Install packages
-apk add python3 py3-pip git
+apk add python3 py3-pip git procps
 
 # Install dependencies
 pip3 install -r requirements.txt
@@ -106,9 +114,14 @@ export CDP_API_KEY_SECRET="your_api_key_secret"
 
 # Run in background
 nohup python3 claim.py &
+
+# View logs
+tail -f nohup.out
 ```
 
 This runs the script in the background and keeps it running even after closing the terminal. The script will continuously attempt claims with smart retry logic.
+
+**Note:** iSH is compatible with all modern iOS versions (iOS 13+). The app works the same way across all iPhone and iPad models.
 
 ### Run single claim attempt
 

@@ -23,8 +23,15 @@ def load_claims():
         try:
             with open(CLAIMS_FILE, 'r') as f:
                 data = json.load(f)
-                # Convert ISO format strings back to datetime objects
-                return [datetime.datetime.fromisoformat(ts) for ts in data]
+                # Convert ISO format strings back to timezone-aware datetime objects
+                claims = []
+                for ts in data:
+                    dt = datetime.datetime.fromisoformat(ts)
+                    # Ensure timezone-aware (add UTC if naive)
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=datetime.timezone.utc)
+                    claims.append(dt)
+                return claims
         except (json.JSONDecodeError, ValueError):
             return []
     return []
@@ -74,7 +81,13 @@ async def claim_once():
         claims.append(now)
         save_claims(claims)
         
-        tx_link = faucet_response.get('transaction_link', 'N/A')
+        # Extract transaction link from response (handle different response formats)
+        tx_link = 'N/A'
+        if isinstance(faucet_response, dict):
+            tx_link = faucet_response.get('transaction_link', 'N/A')
+        elif hasattr(faucet_response, 'transaction_link'):
+            tx_link = faucet_response.transaction_link
+        
         print(f"[{now}] Faucet claim successful! Transaction: {tx_link}")
         return True
         

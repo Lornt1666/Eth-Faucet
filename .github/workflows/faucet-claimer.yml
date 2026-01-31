@@ -23,9 +23,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: claims_history.json
-          key: claims-history-${{ github.run_id }}
+          key: claims-history-v1
           restore-keys: |
-            claims-history-
+            claims-history-v1
       
       - name: Install dependencies
         run: |

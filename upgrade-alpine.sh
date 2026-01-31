@@ -96,10 +96,27 @@ echo "[2/5] Updating repository URLs..."
 # Backup and modify repositories
 cp /etc/apk/repositories /etc/apk/repositories.old
 
-# Replace version numbers with v3.19
-sed -i 's/v[0-9]\+\.[0-9]\+/v3.19/g' /etc/apk/repositories
+# Check if using iSH repositories (which have timestamps)
+if grep -q "apk.ish.app" /etc/apk/repositories; then
+    echo "Detected iSH repositories with timestamps."
+    echo "Switching to standard Alpine CDN repositories for v3.19..."
+    
+    # Replace iSH URLs with standard Alpine CDN URLs
+    # iSH format: http://apk.ish.app/v3.14-2023-05-19/main
+    # Standard format: http://dl-cdn.alpinelinux.org/alpine/v3.19/main
+    cat > /etc/apk/repositories << 'EOF'
+http://dl-cdn.alpinelinux.org/alpine/v3.19/main
+http://dl-cdn.alpinelinux.org/alpine/v3.19/community
+EOF
+    echo "✓ Switched to standard Alpine repositories"
+else
+    echo "Detected standard Alpine repositories."
+    # Replace version numbers with v3.19
+    sed -i 's/v[0-9]\+\.[0-9]\+/v3.19/g' /etc/apk/repositories
+    echo "✓ Updated repository URLs to v3.19"
+fi
 
-echo "✓ Updated repository URLs to v3.19"
+echo "New repository configuration:"
 cat /etc/apk/repositories
 echo ""
 

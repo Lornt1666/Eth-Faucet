@@ -126,11 +126,30 @@ fi
 # Step 2: Install Python dependencies
 echo ""
 echo "[2/5] Installing Python dependencies..."
+
+# First, check if pip is working
+echo "Checking pip installation..."
+if ! pip3 --version > /dev/null 2>&1; then
+    echo "⚠️  pip appears to be broken. Reinstalling..."
+    apk add --force-broken-world py3-pip
+fi
+
 echo "Upgrading pip to latest version..."
 
 # Use --break-system-packages for Python 3.11+ (Alpine 3.19+)
 # This is safe in iSH as it's an isolated environment
-pip3 install --upgrade pip --break-system-packages 2>&1 | grep -v "Requirement already satisfied" || true
+if ! pip3 install --upgrade pip --break-system-packages 2>&1 | grep -v "Requirement already satisfied"; then
+    echo "⚠️  pip upgrade failed. Trying to repair pip installation..."
+    
+    # Reinstall pip from Alpine packages
+    apk del py3-pip
+    apk add py3-pip
+    
+    # Try upgrade again
+    pip3 install --upgrade pip --break-system-packages || {
+        echo "Warning: Could not upgrade pip, continuing with system pip..."
+    }
+fi
 
 echo "Installing cdp-sdk..."
 pip3 install -r requirements.txt --break-system-packages || {
@@ -138,10 +157,11 @@ pip3 install -r requirements.txt --break-system-packages || {
     echo "Error: Failed to install Python dependencies"
     echo ""
     echo "Troubleshooting steps:"
-    echo "1. Check internet connection"
-    echo "2. Try manually: pip3 install --upgrade pip --break-system-packages"
-    echo "3. Try manually: pip3 install cdp-sdk --break-system-packages"
-    echo "4. If still failing, check pip version: pip3 --version"
+    echo "1. Check internet connection: ping 8.8.8.8"
+    echo "2. Check pip works: pip3 --version"
+    echo "3. Repair pip if needed: apk del py3-pip && apk add py3-pip"
+    echo "4. Try manual install: pip3 install cdp-sdk --break-system-packages"
+    echo "5. Check full error above for specific package issues"
     echo ""
     echo "Note: --break-system-packages is required for Python 3.11+"
     echo "This is safe in iSH as it's an isolated environment."

@@ -68,13 +68,30 @@ If you have Alpine 3.14 or older, you need to upgrade to 3.16+ first.
 
 If you're on Alpine 3.14 or older:
 
-**Option 1: Reinstall with newer Alpine (Recommended)**
+**Option 1: Use the Upgrade Helper Script (Easiest)**
+```bash
+# Clone the repository first
+git clone https://github.com/Lornt1666/Eth-Faucet.git
+cd Eth-Faucet
+
+# Run the upgrade helper
+sh upgrade-alpine.sh
+```
+
+The upgrade helper will:
+- Check your current Alpine and Python versions
+- Create backups of important files
+- Update repository URLs to Alpine 3.19
+- Upgrade all packages
+- Verify Python 3.10+ is available
+
+**Option 2: Reinstall with newer Alpine (Clean install)**
 1. Open iSH settings
 2. Tap "Distribution"
 3. Select "Alpine 3.16" or newer
 4. Confirm reinstallation (this will reset iSH)
 
-**Option 2: Manual upgrade (Advanced)**
+**Option 3: Manual upgrade (Advanced)**
 ```bash
 # Backup important data first!
 # Edit repositories to use newer version

@@ -1,4 +1,4 @@
-# 🎯 FINAL SOLUTION - Complete Fix for All Pip Errors
+# 🎯 FINAL SOLUTION - Pip Error Fixed Once and For All
 
 ## Problem
 You keep seeing this error:
@@ -7,27 +7,22 @@ import pip._internal.resolution.resolvelib.resolver
 File "/usr/lib/python3.11/site-packages/pip/_internal/resolution/resolvelib/resolver.py", line 8
 ```
 
-## Root Cause
-The **old version of setup-ish.sh was upgrading pip, which broke it**. Even after running fix-pip.sh, setup-ish.sh would break it again.
+## Root Causes (Both Fixed Now)
+1. **Old bug**: setup-ish.sh was upgrading pip, which broke it
+2. **New bug**: setup-ish.sh was checking if pip works (which triggered error on broken pip)
 
-## THE FIX (3 Commands)
+## ✅ THE FIX (1 Command!)
 
 ```bash
-# 1. Get the latest fixes
-git pull
-
-# 2. Fix pip (if broken)
-sh fix-pip.sh
-
-# 3. Run setup (now won't break pip!)
-sh setup-ish.sh
+git pull && sh setup-ish.sh
 ```
 
 ## What Changed
 
-### Latest setup-ish.sh (commit 3a3489b):
-- ✅ **NO LONGER upgrades pip** (this was breaking it)
-- ✅ Uses system pip (23.3.1) which works perfectly
+### Latest setup-ish.sh (commit 91dad07):
+- ✅ **Always reinstalls fresh pip** (doesn't check it first)
+- ✅ **Never upgrades pip** (uses system pip 23.3.1)
+- ✅ **Handles broken pip automatically** (removes and reinstalls)
 - ✅ Still installs cdp-sdk correctly
 - ✅ Won't break your fixed pip
 

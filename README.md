@@ -23,7 +23,9 @@ Automatically claims Base Sepolia ETH from the [Coinbase CDP Faucet](https://por
 ### Prerequisites
 
 1. **CDP API Keys**: Get your API credentials from [Coinbase Developer Platform](https://portal.cdp.coinbase.com/)
-2. **Python 3.x** installed
+2. **Python 3.10 or higher** - The CDP SDK requires Python 3.10+
+   - For iSH users: Requires Alpine Linux 3.16 or higher (which includes Python 3.10+)
+   - Alpine 3.14 only has Python 3.9 and will NOT work
 
 ### Installation
 
@@ -49,9 +51,44 @@ export CDP_API_KEY_SECRET="your_api_key_secret"
 
 ### Quick Start for iSH (Alpine iOS)
 
-**Compatible with iSH on iPhone/iPad running iOS 13 and later (including iOS 16+)**
+**Important: Requires Alpine Linux 3.16 or higher for Python 3.10+ support**
 
-The easiest way to set up and run on iSH:
+Compatible with iSH on iPhone/iPad running iOS 13 and later.
+
+#### Check Your Alpine Version
+
+Before proceeding, verify your Alpine version:
+```bash
+cat /etc/alpine-release
+```
+
+If you have Alpine 3.14 or older, you need to upgrade to 3.16+ first.
+
+#### Upgrade Alpine in iSH (if needed)
+
+If you're on Alpine 3.14 or older:
+
+**Option 1: Reinstall with newer Alpine (Recommended)**
+1. Open iSH settings
+2. Tap "Distribution"
+3. Select "Alpine 3.16" or newer
+4. Confirm reinstallation (this will reset iSH)
+
+**Option 2: Manual upgrade (Advanced)**
+```bash
+# Backup important data first!
+# Edit repositories to use newer version
+sed -i 's/v3.14/v3.19/g' /etc/apk/repositories
+# Update and upgrade
+apk update
+apk upgrade --available
+sync
+# Reboot iSH
+```
+
+#### Installation
+
+The easiest way to set up and run on iSH (Alpine 3.16+):
 
 ```bash
 # 1. Clone the repository
@@ -63,6 +100,7 @@ sh setup-ish.sh
 ```
 
 The script will:
+- Check Python version (must be 3.10+)
 - Install required packages (python3, py3-pip, git, procps)
 - Install Python dependencies
 - Prompt for your CDP API credentials
@@ -96,14 +134,20 @@ python3 claim.py
 
 ### Manual iSH Setup (Alternative)
 
-If you prefer manual setup on iSH:
+If you prefer manual setup on iSH (requires Alpine 3.16+ for Python 3.10+):
 
 ```bash
+# Check Alpine version
+cat /etc/alpine-release
+
 # Update package index (recommended on first run)
 apk update
 
-# Install packages
+# Install packages (Alpine 3.16+ will install Python 3.10+)
 apk add python3 py3-pip git procps
+
+# Verify Python version (must be 3.10+)
+python3 --version
 
 # Upgrade pip (important for older iSH versions)
 pip3 install --upgrade pip
@@ -126,7 +170,9 @@ This runs the script in the background and keeps it running even after closing t
 
 **Note:** iSH is compatible with all modern iOS versions (iOS 13+). The app works the same way across all iPhone and iPad models.
 
-**Troubleshooting:** If you encounter `ERROR: Could not find a version that satisfies the requirement cdp-sdk`, make sure pip is upgraded first with `pip3 install --upgrade pip`.
+**Important:** If using Alpine 3.14 or older, you MUST upgrade to Alpine 3.16+ first. Alpine 3.14 only has Python 3.9, but CDP SDK requires Python 3.10 or higher.
+
+**Troubleshooting:** If you encounter `ERROR: Could not find a version that satisfies the requirement cdp-sdk`, this means your Python version is too old. Check with `python3 --version` - it must be 3.10 or higher.
 
 ### Run single claim attempt
 

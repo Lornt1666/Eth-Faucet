@@ -1,6 +1,7 @@
 #!/bin/sh
 # iSH (Alpine iOS) Setup Script for Base Sepolia ETH Faucet Claimer
 # Compatible with iSH on iPhone/iPad (iOS 13+)
+# Requires: Alpine Linux 3.16+ (for Python 3.10+)
 # This script sets up and runs the faucet claimer on iSH
 
 set -e
@@ -16,11 +17,76 @@ if ! command -v apk >/dev/null 2>&1; then
     echo "Continuing anyway..."
 fi
 
+# Check Python version before proceeding
+echo "Checking Python version..."
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+    PYTHON_MAJOR=$(python3 -c 'import sys; print(sys.version_info[0])')
+    PYTHON_MINOR=$(python3 -c 'import sys; print(sys.version_info[1])')
+    
+    echo "Found Python $PYTHON_VERSION"
+    
+    if [ "$PYTHON_MAJOR" -lt 3 ] || [ "$PYTHON_MAJOR" -eq 3 -a "$PYTHON_MINOR" -lt 10 ]; then
+        echo ""
+        echo "=========================================="
+        echo "ERROR: Python 3.10 or higher is required"
+        echo "=========================================="
+        echo ""
+        echo "Your Python version: $PYTHON_VERSION"
+        echo "Required: Python 3.10+"
+        echo ""
+        echo "The CDP SDK requires Python 3.10 or higher."
+        echo "Alpine Linux 3.14 only has Python 3.9."
+        echo ""
+        echo "Solutions:"
+        echo ""
+        echo "1. Upgrade Alpine in iSH to 3.16 or higher:"
+        echo "   Open iSH settings and select a newer Alpine version"
+        echo "   (Alpine 3.16+ includes Python 3.10+)"
+        echo ""
+        echo "2. Or manually upgrade (advanced):"
+        echo "   Edit /etc/apk/repositories"
+        echo "   Replace 'v3.14' with 'v3.19' (or latest)"
+        echo "   Run: apk update && apk upgrade"
+        echo ""
+        echo "3. Alternative: Use GitHub Actions instead"
+        echo "   Set up automated claiming via GitHub Actions"
+        echo "   (See README for instructions)"
+        echo ""
+        exit 1
+    fi
+else
+    echo "Python3 not found, will install..."
+fi
+
 # Step 1: Install required packages
+echo ""
 echo "[1/5] Installing required packages..."
 apk add --no-cache python3 py3-pip git procps || {
     echo "Note: If package installation fails, try running: apk update first"
 }
+
+# Verify Python version after installation
+PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+PYTHON_MAJOR=$(python3 -c 'import sys; print(sys.version_info[0])')
+PYTHON_MINOR=$(python3 -c 'import sys; print(sys.version_info[1])')
+
+echo "Installed Python version: $PYTHON_VERSION"
+
+if [ "$PYTHON_MAJOR" -lt 3 ] || [ "$PYTHON_MAJOR" -eq 3 -a "$PYTHON_MINOR" -lt 10 ]; then
+    echo ""
+    echo "=========================================="
+    echo "ERROR: Python 3.10 or higher is required"
+    echo "=========================================="
+    echo ""
+    echo "Your Alpine version installed Python $PYTHON_VERSION"
+    echo "This is too old for the CDP SDK."
+    echo ""
+    echo "Please upgrade your Alpine Linux version to 3.16 or higher"
+    echo "which includes Python 3.10+."
+    echo ""
+    exit 1
+fi
 
 # Step 2: Install Python dependencies
 echo ""

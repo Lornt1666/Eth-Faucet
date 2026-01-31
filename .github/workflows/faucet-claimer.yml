@@ -25,6 +25,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: claims_history.json
+          # Cache key version should be incremented (e.g., to v2) if JSON format changes
+          # Incrementing the version will reset the claim history
           key: claims-history-v1
       
       - name: Install dependencies

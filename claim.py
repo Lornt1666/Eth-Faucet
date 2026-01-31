@@ -20,6 +20,7 @@ MAX_CLAIMS_PER_24H = 1000
 SLEEP_AFTER_SUCCESS = 90  # seconds
 SLEEP_AFTER_ERROR = 300  # seconds (5 minutes)
 SLEEP_AFTER_LIMIT = 3600  # seconds (1 hour)
+TRANSACTION_LINK_UNAVAILABLE = "N/A"
 
 def load_claims():
     """Load claim history from file."""
@@ -36,7 +37,8 @@ def load_claims():
                         dt = dt.replace(tzinfo=datetime.timezone.utc)
                     claims.append(dt)
                 return claims
-        except (json.JSONDecodeError, ValueError):
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"Warning: Failed to load claims history from {CLAIMS_FILE}: {e}")
             return []
     return []
 
@@ -46,6 +48,12 @@ def save_claims(claims):
     data = [ts.isoformat() for ts in claims]
     with open(CLAIMS_FILE, 'w') as f:
         json.dump(data, f)
+
+def filter_recent_claims(claims):
+    """Filter claims to only include those within the last 24 hours."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cutoff_time = now - datetime.timedelta(hours=24)
+    return [claim_time for claim_time in claims if claim_time > cutoff_time]
 
 async def claim_once():
     """Perform a single faucet claim attempt."""
@@ -61,8 +69,7 @@ async def claim_once():
     now = datetime.datetime.now(datetime.timezone.utc)
     
     # Filter out claims older than 24 hours
-    cutoff_time = now - datetime.timedelta(hours=24)
-    claims = [claim_time for claim_time in claims if claim_time > cutoff_time]
+    claims = filter_recent_claims(claims)
     
     # Check if we've reached the 1000 claim limit in the last 24h
     if len(claims) >= MAX_CLAIMS_PER_24H:
@@ -86,9 +93,9 @@ async def claim_once():
         save_claims(claims)
         
         # Extract transaction link from response (handle different response formats)
-        tx_link = 'N/A'
+        tx_link = TRANSACTION_LINK_UNAVAILABLE
         if isinstance(faucet_response, dict):
-            tx_link = faucet_response.get('transaction_link', 'N/A')
+            tx_link = faucet_response.get('transaction_link', TRANSACTION_LINK_UNAVAILABLE)
         elif hasattr(faucet_response, 'transaction_link'):
             tx_link = faucet_response.transaction_link
         
@@ -113,9 +120,7 @@ async def claim_loop():
         else:
             # Check if we hit the limit or had an error
             claims = load_claims()
-            now = datetime.datetime.now(datetime.timezone.utc)
-            cutoff_time = now - datetime.timedelta(hours=24)
-            claims = [claim_time for claim_time in claims if claim_time > cutoff_time]
+            claims = filter_recent_claims(claims)
             
             if len(claims) >= MAX_CLAIMS_PER_24H:
                 # Hit claim limit, sleep for 1 hour

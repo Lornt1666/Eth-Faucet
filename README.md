@@ -47,15 +47,64 @@ export CDP_API_KEY_SECRET="your_api_key_secret"
 
 ## Usage
 
+### Quick Start for iSH (Alpine iOS)
+
+The easiest way to set up and run on iSH:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Lornt1666/Eth-Faucet.git
+cd Eth-Faucet
+
+# 2. Run the automated setup script
+sh setup-ish.sh
+```
+
+The script will:
+- Install required packages (python3, py3-pip, git)
+- Install Python dependencies
+- Prompt for your CDP API credentials
+- Save credentials to `.env.sh` for persistence
+- Start the claimer in background mode
+- Show you the logs
+
+**Useful commands after setup:**
+```bash
+# View live logs
+tail -f nohup.out
+
+# Stop the claimer
+pkill -f 'python3.*claim.py'
+
+# Restart the claimer
+source .env.sh && nohup python3 claim.py > nohup.out 2>&1 &
+
+# Check if running
+pgrep -f 'python3.*claim.py' && echo 'Running' || echo 'Stopped'
+```
+
 ### Run locally (continuous mode)
 
 ```bash
 python3 claim.py
 ```
 
-### Run on iSH (Alpine iOS) - continuous mode
+### Manual iSH Setup (Alternative)
+
+If you prefer manual setup:
 
 ```bash
+# Install packages
+apk add python3 py3-pip git
+
+# Install dependencies
+pip3 install -r requirements.txt
+
+# Set environment variables
+export CDP_API_KEY_ID="your_api_key_id"
+export CDP_API_KEY_SECRET="your_api_key_secret"
+
+# Run in background
 nohup python3 claim.py &
 ```
 

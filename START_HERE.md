@@ -2,6 +2,20 @@
 
 If you're seeing this, you're ready to set up the Base Sepolia ETH faucet claimer on iSH!
 
+## Important: Navigate to Repository First
+
+Make sure you're in the repository directory:
+```bash
+cd ~/Eth-Faucet
+```
+
+If you get an error, you might need to clone first:
+```bash
+cd ~
+git clone -b copilot/implement-faucet-claims-script https://github.com/Lornt1666/Eth-Faucet.git
+cd Eth-Faucet
+```
+
 ## Step 1: Get Latest Files
 
 ```bash

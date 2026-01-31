@@ -3,10 +3,27 @@
 ## If you're seeing ANY error, do this FIRST:
 
 ```bash
+cd ~/Eth-Faucet          # Navigate to repository
 git pull
 ```
 
 **That's it!** Most errors are fixed in the latest version.
+
+## ⚠️ "not a git repository" Error?
+
+If you see "fatal: not a git repository", you're not in the right directory.
+
+**Fix:**
+```bash
+cd ~/Eth-Faucet
+```
+
+Or if you haven't cloned yet:
+```bash
+cd ~
+git clone -b copilot/implement-faucet-claims-script https://github.com/Lornt1666/Eth-Faucet.git
+cd Eth-Faucet
+```
 
 ---
 
@@ -17,7 +34,12 @@ git pull
 File "/usr/lib/python3.11/site-packages/pip/_internal/resolution/resolvelib/resolver.py", line 8
 ```
 
-**Fix:** `git pull` then `sh setup-ish.sh`
+**Fix:** 
+```bash
+cd ~/Eth-Faucet
+git pull
+sh setup-ish.sh
+```
 
 ### 2. ❌ File Not Found Errors
 ```
@@ -33,11 +55,20 @@ Current Alpine version: 3.19.9
 Do you want to continue? (y/yes or n/no):
 ```
 
-**Fix:** `git pull` then `sh upgrade-alpine.sh` (will now skip automatically)
+**Fix:** 
+```bash
+cd ~/Eth-Faucet
+git pull
+sh upgrade-alpine.sh  # Will now skip automatically
+```
 
 ### 4. ❌ Confirmation Doesn't Accept "Yes" (only "yes")
 
-**Fix:** `git pull` (now accepts y, Y, yes, Yes, YES, etc.)
+**Fix:** 
+```bash
+cd ~/Eth-Faucet
+git pull  # Now accepts y, Y, yes, Yes, YES, etc.
+```
 
 ---
 
@@ -51,6 +82,7 @@ You cloned the repository before these fixes were added. Running `git pull` down
 
 ### If you're on Alpine 3.14 (old):
 ```bash
+cd ~/Eth-Faucet
 git pull
 sh upgrade-alpine.sh
 # Close and reopen iSH
@@ -60,6 +92,7 @@ sh setup-ish.sh
 
 ### If you're on Alpine 3.19 (already upgraded):
 ```bash
+cd ~/Eth-Faucet
 git pull
 sh setup-ish.sh
 ```
@@ -78,6 +111,10 @@ See these guides (after running `git pull`):
 
 ## TL;DR
 
-**Just run:** `git pull`
+**Just run:** 
+```bash
+cd ~/Eth-Faucet
+git pull
+```
 
 Then try again. 99% of errors are already fixed.

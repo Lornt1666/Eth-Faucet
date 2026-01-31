@@ -11,9 +11,10 @@ File "/usr/lib/python3.11/site-packages/pip/_internal/resolution/resolvelib/reso
 1. **Old bug**: setup-ish.sh was upgrading pip, which broke it
 2. **New bug**: setup-ish.sh was checking if pip works (which triggered error on broken pip)
 
-## ✅ THE FIX (1 Command!)
+## ✅ THE FIX (2 Commands!)
 
 ```bash
+cd ~/Eth-Faucet          # Make sure you're in the repository
 git pull && sh setup-ish.sh
 ```
 
@@ -74,7 +75,8 @@ The fix: **Don't upgrade pip on iSH, just use what Alpine provides.**
 
 **YOU SHOULD NOW BE ABLE TO RUN:**
 ```bash
-git pull && sh fix-pip.sh && sh setup-ish.sh
+cd ~/Eth-Faucet
+git pull && sh setup-ish.sh
 ```
 
 **And it will work!** 🎉

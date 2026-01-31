@@ -1,12 +1,13 @@
 # 🚨 IF YOU'RE SEEING PIP ERRORS - RUN THIS NOW
 
-## The One Command That Fixes Everything:
+## The Commands That Fix Everything:
 
 ```bash
+cd ~/Eth-Faucet          # Navigate to repository
 git pull && sh setup-ish.sh
 ```
 
-Copy that entire line, paste it in iSH, press Enter.
+Copy those lines, paste in iSH, press Enter.
 
 ## What It Does
 
@@ -37,4 +38,8 @@ Enter your Coinbase Developer Platform API credentials and the faucet claimer wi
 
 ---
 
-**Just run:** `git pull && sh setup-ish.sh`
+**Just run:**
+```bash
+cd ~/Eth-Faucet
+git pull && sh setup-ish.sh
+```

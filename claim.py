@@ -11,67 +11,114 @@ import time
 import datetime
 import os
 import sys
+import json
 
 # Target address for faucet claims
 TARGET_ADDRESS = "0xca1069955bD83ccD5371182d0276FeC855f7C97F"
+CLAIMS_FILE = "claims_history.json"
 
-# Async main claim loop
-async def claim_loop():
-    """Main faucet claiming loop with 24h rolling window and 1000 claim limit."""
-    print(f"Starting Base Sepolia ETH faucet claimer for {TARGET_ADDRESS}")
-    
+def load_claims():
+    """Load claim history from file."""
+    if os.path.exists(CLAIMS_FILE):
+        try:
+            with open(CLAIMS_FILE, 'r') as f:
+                data = json.load(f)
+                # Convert ISO format strings back to datetime objects
+                return [datetime.datetime.fromisoformat(ts) for ts in data]
+        except (json.JSONDecodeError, ValueError):
+            return []
+    return []
+
+def save_claims(claims):
+    """Save claim history to file."""
+    # Convert datetime objects to ISO format strings
+    data = [ts.isoformat() for ts in claims]
+    with open(CLAIMS_FILE, 'w') as f:
+        json.dump(data, f)
+
+async def claim_once():
+    """Perform a single faucet claim attempt."""
     # Check environment variables
     if not os.getenv("CDP_API_KEY_ID") or not os.getenv("CDP_API_KEY_SECRET"):
         print("Error: CDP_API_KEY_ID and CDP_API_KEY_SECRET environment variables required")
         sys.exit(1)
     
-    claims = []
+    # Load claim history
+    claims = load_claims()
+    
+    # Get current time (timezone-aware)
+    now = datetime.datetime.now(datetime.timezone.utc)
+    
+    # Filter out claims older than 24 hours
+    cutoff_time = now - datetime.timedelta(hours=24)
+    claims = [claim_time for claim_time in claims if claim_time > cutoff_time]
+    
+    # Check if we've reached the 1000 claim limit in the last 24h
+    if len(claims) >= 1000:
+        print(f"[{now}] Reached 1000 claims in last 24h. Skipping claim.")
+        return False
+    
+    # Request faucet
+    print(f"[{now}] Attempting faucet claim (total claims in 24h: {len(claims)})...")
+    
+    try:
+        # Use CDP client to request faucet funds
+        async with CdpClient() as cdp:
+            faucet_response = await cdp.evm.request_faucet(
+                address=TARGET_ADDRESS,
+                network="base-sepolia",
+                token="eth"
+            )
+        
+        # Record successful claim
+        claims.append(now)
+        save_claims(claims)
+        
+        tx_link = faucet_response.get('transaction_link', 'N/A')
+        print(f"[{now}] Faucet claim successful! Transaction: {tx_link}")
+        return True
+        
+    except Exception as e:
+        print(f"[{now}] Error occurred: {str(e)}")
+        return False
+
+async def claim_loop():
+    """Main faucet claiming loop with 24h rolling window and 1000 claim limit."""
+    print(f"Starting Base Sepolia ETH faucet claimer for {TARGET_ADDRESS}")
     
     while True:
-        try:
-            # Get current time
-            now = datetime.datetime.now()
-            
-            # Filter out claims older than 24 hours
+        success = await claim_once()
+        
+        if success:
+            # Sleep for 90 seconds before next attempt
+            print(f"Sleeping for 90 seconds...")
+            await asyncio.sleep(90)
+        else:
+            # Check if we hit the limit or had an error
+            claims = load_claims()
+            now = datetime.datetime.now(datetime.timezone.utc)
             cutoff_time = now - datetime.timedelta(hours=24)
             claims = [claim_time for claim_time in claims if claim_time > cutoff_time]
             
-            # Check if we've reached the 1000 claim limit in the last 24h
             if len(claims) >= 1000:
-                print(f"[{now}] Reached 1000 claims in last 24h. Sleeping for 1 hour...")
-                await asyncio.sleep(3600)  # Sleep for 1 hour
-                continue
-            
-            # Request faucet
-            print(f"[{now}] Attempting faucet claim (total claims in 24h: {len(claims)})...")
-            
-            # Use CDP client to request faucet funds
-            async with CdpClient() as cdp:
-                faucet_response = await cdp.evm.request_faucet(
-                    address=TARGET_ADDRESS,
-                    network="base-sepolia",
-                    token="eth"
-                )
-            
-            # Record successful claim
-            claims.append(now)
-            tx_link = faucet_response.get('transaction_link', 'N/A')
-            print(f"[{now}] Faucet claim successful! Transaction: {tx_link}")
-            
-            # Sleep for 90 seconds before next attempt
-            print(f"[{now}] Sleeping for 90 seconds...")
-            await asyncio.sleep(90)
-            
-        except Exception as e:
-            # On exception, sleep for 5 minutes
-            error_time = datetime.datetime.now()
-            print(f"[{error_time}] Error occurred: {str(e)}")
-            print(f"[{error_time}] Sleeping for 5 minutes...")
-            await asyncio.sleep(300)  # Sleep for 5 minutes
+                # Hit claim limit, sleep for 1 hour
+                print(f"Sleeping for 1 hour...")
+                await asyncio.sleep(3600)
+            else:
+                # Had an error, sleep for 5 minutes
+                print(f"Sleeping for 5 minutes...")
+                await asyncio.sleep(300)
 
 def main():
-    """Entry point that runs the async claim loop."""
-    asyncio.run(claim_loop())
+    """Entry point that runs based on mode."""
+    mode = os.getenv("CLAIM_MODE", "continuous")
+    
+    if mode == "single":
+        # Single claim mode for GitHub Actions
+        asyncio.run(claim_once())
+    else:
+        # Continuous mode for iSH
+        asyncio.run(claim_loop())
 
 if __name__ == "__main__":
     main()

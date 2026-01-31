@@ -43,3 +43,6 @@ Thumbs.db
 # Logs
 *.log
 nohup.out
+
+# Claims history (persisted via GitHub Actions cache)
+claims_history.json

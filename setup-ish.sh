@@ -17,7 +17,55 @@ if ! command -v apk >/dev/null 2>&1; then
     echo "Continuing anyway..."
 fi
 
-# Check Python version before proceeding
+# Check Alpine version BEFORE installing any packages
+# This prevents downgrading pip/setuptools when old Python is installed
+echo "Checking Alpine Linux version..."
+if [ -f /etc/alpine-release ]; then
+    ALPINE_VERSION=$(cat /etc/alpine-release)
+    ALPINE_MAJOR=$(echo "$ALPINE_VERSION" | cut -d. -f1)
+    ALPINE_MINOR=$(echo "$ALPINE_VERSION" | cut -d. -f2)
+    
+    echo "Found Alpine Linux $ALPINE_VERSION"
+    
+    # Check if Alpine is at least 3.16 (which has Python 3.10+)
+    if [ "$ALPINE_MAJOR" -lt 3 ] || [ "$ALPINE_MAJOR" -eq 3 -a "$ALPINE_MINOR" -lt 16 ]; then
+        echo ""
+        echo "=========================================="
+        echo "ERROR: Alpine 3.16 or higher is required"
+        echo "=========================================="
+        echo ""
+        echo "Your Alpine version: $ALPINE_VERSION"
+        echo "Required: Alpine 3.16+ (for Python 3.10+)"
+        echo ""
+        echo "Alpine $ALPINE_VERSION only has Python 3.9, but CDP SDK requires Python 3.10+."
+        echo ""
+        echo "⚠️  DO NOT install packages on old Alpine - it will downgrade pip!"
+        echo ""
+        echo "Solutions:"
+        echo ""
+        echo "1. RECOMMENDED: Upgrade Alpine with helper script:"
+        echo "   sh upgrade-alpine.sh"
+        echo "   (Upgrades Alpine to 3.19 with Python 3.11)"
+        echo ""
+        echo "2. Alternative: Reinstall iSH with newer Alpine:"
+        echo "   Open iSH settings and select Alpine 3.16+"
+        echo "   (Requires reinstalling iSH)"
+        echo ""
+        echo "3. Alternative: Use GitHub Actions instead:"
+        echo "   Set up automated claiming via GitHub Actions"
+        echo "   (See README for instructions)"
+        echo ""
+        exit 1
+    fi
+    
+    echo "✓ Alpine version is compatible"
+else
+    echo "Warning: Cannot detect Alpine version (/etc/alpine-release not found)"
+    echo "Proceeding anyway, but Python 3.10+ is required."
+fi
+
+# Check Python version if already installed
+echo ""
 echo "Checking Python version..."
 if command -v python3 >/dev/null 2>&1; then
     PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
@@ -28,34 +76,15 @@ if command -v python3 >/dev/null 2>&1; then
     
     if [ "$PYTHON_MAJOR" -lt 3 ] || [ "$PYTHON_MAJOR" -eq 3 -a "$PYTHON_MINOR" -lt 10 ]; then
         echo ""
-        echo "=========================================="
-        echo "ERROR: Python 3.10 or higher is required"
-        echo "=========================================="
-        echo ""
-        echo "Your Python version: $PYTHON_VERSION"
-        echo "Required: Python 3.10+"
-        echo ""
-        echo "The CDP SDK requires Python 3.10 or higher."
-        echo "Alpine Linux 3.14 only has Python 3.9."
-        echo ""
-        echo "Solutions:"
-        echo ""
-        echo "1. Easy upgrade with helper script:"
-        echo "   sh upgrade-alpine.sh"
-        echo "   (Upgrades Alpine to 3.19 with Python 3.11)"
-        echo ""
-        echo "2. Reinstall iSH with newer Alpine:"
-        echo "   Open iSH settings and select Alpine 3.16+"
-        echo "   (Requires reinstalling iSH - backs up data first!)"
-        echo ""
-        echo "3. Alternative: Use GitHub Actions instead"
-        echo "   Set up automated claiming via GitHub Actions"
-        echo "   (See README for instructions)"
+        echo "ERROR: Python 3.10+ required, but found $PYTHON_VERSION"
+        echo "This shouldn't happen on Alpine 3.16+. Try running: sh upgrade-alpine.sh"
         echo ""
         exit 1
     fi
+    
+    echo "✓ Python version is compatible"
 else
-    echo "Python3 not found, will install..."
+    echo "Python3 not found, will install from repositories..."
 fi
 
 # Step 1: Install required packages

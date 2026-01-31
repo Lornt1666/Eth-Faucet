@@ -61,7 +61,11 @@ fi
 # Step 1: Install required packages
 echo ""
 echo "[1/5] Installing required packages..."
-apk add --no-cache python3 py3-pip git procps || {
+
+# Install py3-cryptography from Alpine to avoid Rust build issues on i386
+# CDP SDK depends on cryptography, but building it from source requires Rust
+# which doesn't work well on iSH (i386-unknown-linux-musl architecture)
+apk add --no-cache python3 py3-pip git procps py3-cryptography || {
     echo "Note: If package installation fails, try running: apk update first"
 }
 

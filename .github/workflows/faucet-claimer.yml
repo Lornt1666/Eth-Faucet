@@ -24,8 +24,6 @@ jobs:
         with:
           path: claims_history.json
           key: claims-history-v1
-          restore-keys: |
-            claims-history-v1
       
       - name: Install dependencies
         run: |

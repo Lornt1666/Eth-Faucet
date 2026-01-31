@@ -13,9 +13,13 @@ import os
 import sys
 import json
 
-# Target address for faucet claims
+# Configuration constants
 TARGET_ADDRESS = "0xca1069955bD83ccD5371182d0276FeC855f7C97F"
 CLAIMS_FILE = "claims_history.json"
+MAX_CLAIMS_PER_24H = 1000
+SLEEP_AFTER_SUCCESS = 90  # seconds
+SLEEP_AFTER_ERROR = 300  # seconds (5 minutes)
+SLEEP_AFTER_LIMIT = 3600  # seconds (1 hour)
 
 def load_claims():
     """Load claim history from file."""
@@ -61,8 +65,8 @@ async def claim_once():
     claims = [claim_time for claim_time in claims if claim_time > cutoff_time]
     
     # Check if we've reached the 1000 claim limit in the last 24h
-    if len(claims) >= 1000:
-        print(f"[{now}] Reached 1000 claims in last 24h. Skipping claim.")
+    if len(claims) >= MAX_CLAIMS_PER_24H:
+        print(f"[{now}] Reached {MAX_CLAIMS_PER_24H} claims in last 24h. Skipping claim.")
         return False
     
     # Request faucet
@@ -104,8 +108,8 @@ async def claim_loop():
         
         if success:
             # Sleep for 90 seconds before next attempt
-            print(f"Sleeping for 90 seconds...")
-            await asyncio.sleep(90)
+            print(f"Sleeping for {SLEEP_AFTER_SUCCESS} seconds...")
+            await asyncio.sleep(SLEEP_AFTER_SUCCESS)
         else:
             # Check if we hit the limit or had an error
             claims = load_claims()
@@ -113,14 +117,14 @@ async def claim_loop():
             cutoff_time = now - datetime.timedelta(hours=24)
             claims = [claim_time for claim_time in claims if claim_time > cutoff_time]
             
-            if len(claims) >= 1000:
+            if len(claims) >= MAX_CLAIMS_PER_24H:
                 # Hit claim limit, sleep for 1 hour
-                print(f"Sleeping for 1 hour...")
-                await asyncio.sleep(3600)
+                print(f"Sleeping for {SLEEP_AFTER_LIMIT} seconds...")
+                await asyncio.sleep(SLEEP_AFTER_LIMIT)
             else:
                 # Had an error, sleep for 5 minutes
-                print(f"Sleeping for 5 minutes...")
-                await asyncio.sleep(300)
+                print(f"Sleeping for {SLEEP_AFTER_ERROR} seconds...")
+                await asyncio.sleep(SLEEP_AFTER_ERROR)
 
 def main():
     """Entry point that runs based on mode."""

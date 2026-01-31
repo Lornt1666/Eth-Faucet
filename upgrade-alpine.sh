@@ -31,6 +31,28 @@ else
 fi
 
 echo ""
+
+# Check if already on Alpine 3.16+
+if [ "$CURRENT_VERSION" != "unknown" ]; then
+    # Extract major and minor version (e.g., "3.19.9" -> major=3, minor=19)
+    VERSION_MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+    VERSION_MINOR=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+    
+    # Check if version is 3.16 or higher
+    if [ "$VERSION_MAJOR" -ge 3 ] && [ "$VERSION_MINOR" -ge 16 ]; then
+        echo "✓ Great! You already have Alpine 3.16 or higher!"
+        echo "Alpine $CURRENT_VERSION includes Python $PYTHON_VERSION, which meets requirements."
+        echo ""
+        echo "No upgrade needed. You're ready to proceed with setup!"
+        echo ""
+        echo "Next steps:"
+        echo "1. Run the setup script: sh setup-ish.sh"
+        echo "2. Follow the instructions to configure your API keys"
+        echo ""
+        exit 0
+    fi
+fi
+
 echo "Target: Alpine 3.19 (includes Python 3.11)"
 echo ""
 

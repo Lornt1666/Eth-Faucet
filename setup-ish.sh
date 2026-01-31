@@ -127,16 +127,19 @@ fi
 echo ""
 echo "[2/5] Installing Python dependencies..."
 
-# First, check if pip is working
-echo "Checking pip installation..."
-if ! pip3 --version > /dev/null 2>&1; then
-    echo "⚠️  pip appears to be broken. Reinstalling..."
-    apk del py3-pip 2>/dev/null || true
-    apk add --no-cache py3-pip
-fi
+# Ensure pip is in a clean state (don't test it first, just reinstall)
+echo "Ensuring pip is in clean state..."
+echo "Removing any potentially broken pip installation..."
+apk del py3-pip 2>/dev/null || true
+echo "Installing fresh pip..."
+apk add --no-cache py3-pip
 
 echo "Using system pip (upgrading pip on iSH often causes issues)..."
-pip3 --version
+pip3 --version || {
+    echo "ERROR: pip still broken after reinstall. This shouldn't happen."
+    echo "Try running: sh fix-pip.sh"
+    exit 1
+}
 
 # SKIP pip upgrade - it often breaks on iSH
 # The system pip (23.3.1) works fine for our needs

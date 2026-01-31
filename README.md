@@ -6,9 +6,17 @@ Automatically claims Base Sepolia ETH from the [Coinbase CDP Faucet](https://por
 
 ## 🚨 Getting "File Not Found" Errors?
 
-**See [QUICK_START.md](QUICK_START.md) for troubleshooting!**
+**If `upgrade-alpine.sh` is missing, you need to update:**
 
-Common issue: You're already in the right directory but trying to navigate further. Check with `ls` - if you see `setup-ish.sh`, just run `sh setup-ish.sh` directly!
+```bash
+git pull
+```
+
+**See [QUICK_START.md](QUICK_START.md) for complete troubleshooting!**
+
+Common issues:
+- Missing files? Run `git pull` to get the latest version
+- Already in the right directory? Check with `ls` - if you see `setup-ish.sh`, just run scripts directly!
 
 ## Features
 
@@ -41,6 +49,9 @@ Common issue: You're already in the right directory but trying to navigate furth
 # Clone the faucet claimer branch (NOT the default branch)
 git clone -b copilot/implement-faucet-claims-script https://github.com/Lornt1666/Eth-Faucet.git
 cd Eth-Faucet
+
+# If you already cloned before, update to get the latest files:
+git pull
 
 # Verify you're in the right place
 ls upgrade-alpine.sh setup-ish.sh claim.py 2>/dev/null && echo "✓ Ready to go!" || echo "✗ Wrong branch - see BRANCH_NAVIGATION_FIX.md"

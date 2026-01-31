@@ -7,9 +7,26 @@ If you see this error:
 sh: can't open 'upgrade-alpine.sh': No such file or directory
 ```
 
-**You're probably already in the correct directory!**
+**Two possible causes:**
 
-### ✅ Check Where You Are
+### Cause 1: You Need to Pull the Latest Changes
+
+If `upgrade-alpine.sh` doesn't show up when you run `ls`, you have an old version:
+
+```bash
+# Pull the latest changes
+git pull
+
+# Verify the file is now there
+ls upgrade-alpine.sh
+
+# If you see it, you're good!
+sh upgrade-alpine.sh
+```
+
+**Why this happens:** The `upgrade-alpine.sh` file was added recently. If you cloned the repository before this update, you won't have it until you run `git pull`.
+
+### Cause 2: You're Already in the Right Directory
 
 Run this command:
 ```bash
@@ -52,6 +69,23 @@ sh setup-ish.sh
 ```
 
 ## 📋 Step-by-Step Guide
+
+### Step 0: Make Sure You Have the Latest Files
+
+```bash
+# If you already cloned before, update to get new files:
+cd Eth-Faucet
+git pull
+
+# Check you have all the files:
+ls upgrade-alpine.sh setup-ish.sh QUICK_START.md
+```
+
+You should see all three files listed. If not, make sure you're on the right branch:
+```bash
+git checkout copilot/implement-faucet-claims-script
+git pull
+```
 
 ### Step 1: Clone the Repository (First Time Only)
 
@@ -113,7 +147,31 @@ This will:
 
 ## 🔧 Troubleshooting
 
-### "No such file or directory"
+### "No such file or directory" - upgrade-alpine.sh missing
+
+**Most common cause:** You have an old version of the repository.
+
+**Solution:**
+```bash
+# Pull the latest changes
+git pull
+
+# Verify the files are there
+ls upgrade-alpine.sh QUICK_START.md
+
+# If both files appear, you're updated!
+```
+
+If `git pull` doesn't work or you get errors:
+```bash
+# Make sure you're on the right branch
+git checkout copilot/implement-faucet-claims-script
+
+# Then pull
+git pull
+```
+
+### "No such file or directory" - wrong location
 
 **Solution:** You're probably in the wrong directory OR trying to navigate when you're already there.
 
@@ -129,7 +187,7 @@ List files:
 ls
 ```
 
-Should show: `upgrade-alpine.sh`, `setup-ish.sh`, etc.
+Should show: `upgrade-alpine.sh`, `setup-ish.sh`, `QUICK_START.md`, etc.
 
 ### "Already in Eth-Faucet/Eth-Faucet"
 
@@ -140,6 +198,23 @@ If your prompt shows `~/Eth-Faucet/Eth-Faucet`, you're in a nested structure. Th
 sh upgrade-alpine.sh
 # or
 sh setup-ish.sh
+```
+
+### Missing Files After Clone
+
+If you just cloned and files are missing:
+
+```bash
+# Make sure you cloned the right branch
+git branch
+
+# Should show: * copilot/implement-faucet-claims-script
+
+# If not, switch to it:
+git checkout copilot/implement-faucet-claims-script
+
+# Verify files are there:
+ls -la
 ```
 
 ### Wrong Branch

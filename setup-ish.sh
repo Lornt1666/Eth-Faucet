@@ -28,7 +28,15 @@ if [ -f /etc/alpine-release ]; then
     echo "Found Alpine Linux $ALPINE_VERSION"
     
     # Check if Alpine is at least 3.16 (which has Python 3.10+)
-    if [ "$ALPINE_MAJOR" -lt 3 ] || [ "$ALPINE_MAJOR" -eq 3 -a "$ALPINE_MINOR" -lt 16 ]; then
+    # Using explicit nested conditions to avoid shell operator precedence issues
+    ALPINE_TOO_OLD=0
+    if [ "$ALPINE_MAJOR" -lt 3 ]; then
+        ALPINE_TOO_OLD=1
+    elif [ "$ALPINE_MAJOR" -eq 3 ] && [ "$ALPINE_MINOR" -lt 16 ]; then
+        ALPINE_TOO_OLD=1
+    fi
+    
+    if [ "$ALPINE_TOO_OLD" -eq 1 ]; then
         echo ""
         echo "=========================================="
         echo "ERROR: Alpine 3.16 or higher is required"
@@ -40,6 +48,7 @@ if [ -f /etc/alpine-release ]; then
         echo "Alpine $ALPINE_VERSION only has Python 3.9, but CDP SDK requires Python 3.10+."
         echo ""
         echo "⚠️  DO NOT install packages on old Alpine - it will downgrade pip!"
+        echo "⚠️  If you already ran 'apk add', your pip may be broken!"
         echo ""
         echo "Solutions:"
         echo ""
@@ -59,15 +68,24 @@ if [ -f /etc/alpine-release ]; then
         exit 1
     fi
     
-    echo "✓ Alpine version is compatible"
+    echo "✓ Alpine version is compatible ($ALPINE_VERSION)"
+    echo ""
+    echo "======================================"
+    echo "Pre-flight Check Summary"
+    echo "======================================"
+    echo "Alpine version: $ALPINE_VERSION ✓"
+    echo "Python 3.10+ support: Available ✓"
+    echo ""
+    echo "Ready to proceed with installation..."
+    echo ""
 else
     echo "Warning: Cannot detect Alpine version (/etc/alpine-release not found)"
     echo "Proceeding anyway, but Python 3.10+ is required."
 fi
 
-# Check Python version if already installed
+# Check if old Python/pip versions are already installed (indicates Alpine 3.14)
 echo ""
-echo "Checking Python version..."
+echo "Checking for old package installations..."
 if command -v python3 >/dev/null 2>&1; then
     PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
     PYTHON_MAJOR=$(python3 -c 'import sys; print(sys.version_info[0])')
@@ -75,10 +93,31 @@ if command -v python3 >/dev/null 2>&1; then
     
     echo "Found Python $PYTHON_VERSION"
     
-    if [ "$PYTHON_MAJOR" -lt 3 ] || [ "$PYTHON_MAJOR" -eq 3 -a "$PYTHON_MINOR" -lt 10 ]; then
+    # Check if it's an old version (should not exist on Alpine 3.16+)
+    if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 10 ]); then
         echo ""
-        echo "ERROR: Python 3.10+ required, but found $PYTHON_VERSION"
-        echo "This shouldn't happen on Alpine 3.16+. Try running: sh upgrade-alpine.sh"
+        echo "=========================================="
+        echo "ERROR: Old Python detected!"
+        echo "=========================================="
+        echo ""
+        echo "Python $PYTHON_VERSION is installed, but CDP SDK requires Python 3.10+"
+        echo ""
+        echo "This means:"
+        echo "1. You're on Alpine 3.14 or older, OR"
+        echo "2. Packages were already installed from old Alpine before upgrading"
+        echo ""
+        echo "⚠️  Your pip may already be broken!"
+        echo ""
+        echo "Fix options:"
+        echo ""
+        echo "1. RECOMMENDED: Clean install after upgrade:"
+        echo "   apk del python3 py3-pip  # Remove old packages"
+        echo "   sh upgrade-alpine.sh     # Upgrade Alpine"
+        echo "   # Close and reopen iSH"
+        echo "   sh setup-ish.sh          # Reinstall fresh"
+        echo ""
+        echo "2. Quick fix for broken pip:"
+        echo "   sh fix-pip.sh            # Repair pip"
         echo ""
         exit 1
     fi
